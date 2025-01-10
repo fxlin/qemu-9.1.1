@@ -48,7 +48,8 @@ struct BCM2835FBState {
     QemuConsole *con;
     qemu_irq mbox_irq;
 
-    bool lock, invalidate, pending;
+    bool lock, invalidate, pending; 
+    bool resize; // fxl: a resize action pending
 
     BCM2835FBConfig config;
     BCM2835FBConfig initial_config;

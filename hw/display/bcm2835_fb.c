@@ -149,6 +149,8 @@ static bool fb_use_offsets(BCM2835FBConfig *config)
         config->yres_virtual > config->yres;
 }
 
+// fxl: refresh dispilay... by camlling into the "fb" framework.. 
+//  can be tirggered by qemu's timer...(a diff thread?), but also called by reconfig itself??
 static void fb_update_display(void *opaque)
 {
     BCM2835FBState *s = opaque;
@@ -159,9 +161,24 @@ static void fb_update_display(void *opaque)
     int dest_width = 0;
     uint32_t xoff = 0, yoff = 0;
 
-    if (s->lock || !s->config.xres) {
-        return;
+
+    // fxl: old  design. is this used as a lock? a bit crazy... keep it for info
+    // if (s->lock || !s->config.xres) {
+    //     return; 
+    // }
+
+    __sync_synchronize(); // mem barrier (fxl
+
+    if (!s->config.xres) return; 
+
+    if (s->resize) {
+        // printf("++++++ %s will do resize. s->config.xres %u s->config.yres %u\n", __func__, s->config.xres, s->config.yres);
+        qemu_console_resize(s->con, s->config.xres, s->config.yres); 
+        s->resize = false;  // there's still a chance for race condition -- if "reconfig" called back to back, "resize" may get lost
+        return; // need to skip the current cycle 
     }
+
+    // printf(">>>>> %s will update. s->config.xres %u s->config.yres %u\n", __func__, s->config.xres, s->config.yres);
 
     src_width = bcm2835_fb_get_pitch(&s->config);
     if (fb_use_offsets(&s->config)) {
@@ -200,6 +217,7 @@ static void fb_update_display(void *opaque)
                                           s->config.yres, src_width);
     }
 
+    // fxl: this will grab a qemu "cpu" lock that deadlocks w/ "bcm2835_fb_reconfigure..."
     framebuffer_update_display(surface, &s->fbsection,
                                s->config.xres, s->config.yres,
                                src_width, dest_width, 0, s->invalidate,
@@ -211,6 +229,7 @@ static void fb_update_display(void *opaque)
     }
 
     s->invalidate = false;
+    // s->lock = false;    // fxl: old 
 }
 
 void bcm2835_fb_validate_config(BCM2835FBConfig *config)
@@ -254,13 +273,19 @@ void bcm2835_fb_validate_config(BCM2835FBConfig *config)
 
 void bcm2835_fb_reconfigure(BCM2835FBState *s, BCM2835FBConfig *newconfig)
 {
-    s->lock = true;
+//    s->lock = true;		// fxl: used as a lock like this?
 
     s->config = *newconfig;
 
     s->invalidate = true;
-    qemu_console_resize(s->con, s->config.xres, s->config.yres);
-    s->lock = false;
+
+    __sync_synchronize(); // mem barrier
+
+    s->resize = true; 
+
+    // qemu_console_resize(s->con, s->config.xres, s->config.yres); // fxl: do it later
+    
+    // s->lock = false;
 }
 
 static void bcm2835_fb_mbox_push(BCM2835FBState *s, uint32_t value)
@@ -398,7 +423,9 @@ static void bcm2835_fb_reset(DeviceState *dev)
     s->config = s->initial_config;
 
     s->invalidate = true;
-    s->lock = false;
+    // s->lock = false;
+
+    s->resize = false;
 }
 
 static void bcm2835_fb_realize(DeviceState *dev, Error **errp)
