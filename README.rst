@@ -1,3 +1,33 @@
+Contains fixes for UVA-OS (rpi3 qemu). Sp 2025, by FXL
+
+tag: uva-os-2025-01-10
+
+to install prerequisite 
+```
+sudo apt remove qemu-system-arm
+sudo apt install gdb-multiarch build-essential pkg-config
+sudo apt install libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev libgtk-3-dev
+pip install tomli
+```
+libgtk-3-dev is needed; otherwise qemu build will fall back to SDL which seems to result in a UI with blank screen.
+
+
+clone the code with our fixes
+```
+cd $HOME
+git clone --branch uva-os-2025-01-10 --depth 1 git@github.com:fxlin/qemu-9.1.1.git
+```
+
+to configure and build qemu.
+```
+cd ~/qemu-9.1.1/
+mkdir build
+cd build
+# ../configure --target-list=aarch64-softmmu --enable-debug-info
+../configure --target-list=aarch64-softmmu 
+make -j$(nproc)
+```
+
 ===========
 QEMU README
 ===========
