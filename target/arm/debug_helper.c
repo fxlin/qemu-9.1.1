@@ -169,6 +169,21 @@ bool arm_singlestep_active(CPUARMState *env)
         && arm_generate_debug_exceptions(env);
 }
 
+// debug version, for debugging why spsr.ss is suppressed
+// fxl 2/23/2025
+bool arm_singlestep_active_fxl(CPUARMState *env)
+{
+    bool ret =  extract32(env->cp15.mdscr_el1, 0, 1)
+        && arm_el_is_aa64(env, arm_debug_target_el(env))
+        && arm_generate_debug_exceptions(env);
+
+    printf("fxl: arm_el_is_aa64 %d\n", arm_el_is_aa64(env, arm_debug_target_el(env)));
+    printf("fxl: arm_generate_debug_exceptions %d\n", arm_generate_debug_exceptions(env));
+    printf("fxl: aa64_generate_debug_exceptions %d\n", aa64_generate_debug_exceptions(env));
+
+    return ret;
+}
+
 /* Return true if the linked breakpoint entry lbn passes its checks */
 static bool linked_bp_matches(ARMCPU *cpu, int lbn)
 {
