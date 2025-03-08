@@ -177,9 +177,9 @@ bool arm_singlestep_active_fxl(CPUARMState *env)
         && arm_el_is_aa64(env, arm_debug_target_el(env))
         && arm_generate_debug_exceptions(env);
 
-    printf("fxl: arm_el_is_aa64 %d\n", arm_el_is_aa64(env, arm_debug_target_el(env)));
-    printf("fxl: arm_generate_debug_exceptions %d\n", arm_generate_debug_exceptions(env));
-    printf("fxl: aa64_generate_debug_exceptions %d\n", aa64_generate_debug_exceptions(env));
+    printf("qemu (fxl) arm_el_is_aa64 %d\n", arm_el_is_aa64(env, arm_debug_target_el(env)));
+    printf("qemu (fxl): arm_generate_debug_exceptions %d\n", arm_generate_debug_exceptions(env));
+    printf("qemu (fxl): aa64_generate_debug_exceptions %d\n", aa64_generate_debug_exceptions(env));
 
     return ret;
 }

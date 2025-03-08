@@ -789,7 +789,7 @@ void HELPER(exception_return)(CPUARMState *env, uint64_t new_pc)
      * transition to the EL we're going to.
      */
     if (arm_generate_debug_exceptions(env)) {
-	    if (spsr & PSTATE_SS) printf("fxl: spsr.ss squashed 1\n");
+	    if (spsr & PSTATE_SS) printf("qemu (fxl): spsr.ss squashed 1\n");
         spsr &= ~PSTATE_SS;
     }
 
@@ -855,7 +855,7 @@ void HELPER(exception_return)(CPUARMState *env, uint64_t new_pc)
         pstate_write(env, spsr);
         if (!arm_singlestep_active(env)) {
             if (env->pstate & PSTATE_SS)
-                printf("fxl: spsr.ss squashed 2 %d \n", 
+                printf("qemu (fxl): spsr.ss squashed 2 %d \n", 
                     arm_singlestep_active_fxl(env));
             env->pstate &= ~PSTATE_SS;
         }
