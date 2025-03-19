@@ -3,30 +3,57 @@ Contains fixes for UVA-OS (rpi3 qemu). Sp 2025, by FXL
 tag: uva-os-2025-01-10
 
 to install prerequisite 
+
 ```
 sudo apt remove qemu-system-arm
 sudo apt install gdb-multiarch build-essential pkg-config
 sudo apt install libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev libgtk-3-dev
 pip install tomli
 ```
+
 libgtk-3-dev is needed; otherwise qemu build will fall back to SDL which seems to result in a UI with blank screen.
 
 
 clone the code with our fixes
+
 ```
 cd $HOME
 git clone --branch uva-os-2025-01-10 --depth 1 git@github.com:fxlin/qemu-9.1.1.git
 ```
 
 to configure and build qemu.
+
 ```
 cd ~/qemu-9.1.1/
 mkdir build
 cd build
 # ../configure --target-list=aarch64-softmmu --enable-debug-info
+# to build for ARMv7
+# ../configure --target-list=arm-softmmu
+# to build for ARMv8
 ../configure --target-list=aarch64-softmmu 
 make -j$(nproc)
 ```
+
+
+supported pi platforms 
+
+xzl@FelixLin-XPS15 (v9.1.1-sp25)[qemu-9.1.1]$ ./build/qemu-system-aarch64 -machine help|grep rasp
+raspi0               Raspberry Pi Zero (revision 1.2)
+raspi1ap             Raspberry Pi A+ (revision 1.1)
+raspi2b              Raspberry Pi 2B (revision 1.1)
+raspi3ap             Raspberry Pi 3A+ (revision 1.0)
+raspi3b              Raspberry Pi 3B (revision 1.2)
+raspi4b              Raspberry Pi 4B (revision 1.5)
+
+(no 3b support, bummer) 
+xzl@FelixLin-XPS15 (v9.1.1-sp25)[build-armv7]$ ./qemu-system-arm -machine help|grep rasp
+raspi0               Raspberry Pi Zero (revision 1.2)
+raspi1ap             Raspberry Pi A+ (revision 1.1)
+raspi2b              Raspberry Pi 2B (revision 1.1)
+
+also no qemu support 
+https://github.com/RT-Thread/rt-thread/tree/master/bsp/raspberry-pi/raspi3-32
 
 ===========
 QEMU README
