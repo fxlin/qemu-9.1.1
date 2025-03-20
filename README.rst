@@ -38,6 +38,7 @@ make -j$(nproc)
 
 supported pi platforms 
 
+```
 xzl@FelixLin-XPS15 (v9.1.1-sp25)[qemu-9.1.1]$ ./build/qemu-system-aarch64 -machine help|grep rasp
 raspi0               Raspberry Pi Zero (revision 1.2)
 raspi1ap             Raspberry Pi A+ (revision 1.1)
@@ -45,12 +46,15 @@ raspi2b              Raspberry Pi 2B (revision 1.1)
 raspi3ap             Raspberry Pi 3A+ (revision 1.0)
 raspi3b              Raspberry Pi 3B (revision 1.2)
 raspi4b              Raspberry Pi 4B (revision 1.5)
+```
 
+```
 (no 3b support, bummer) 
 xzl@FelixLin-XPS15 (v9.1.1-sp25)[build-armv7]$ ./qemu-system-arm -machine help|grep rasp
 raspi0               Raspberry Pi Zero (revision 1.2)
 raspi1ap             Raspberry Pi A+ (revision 1.1)
 raspi2b              Raspberry Pi 2B (revision 1.1)
+```
 
 also no qemu support 
 https://github.com/RT-Thread/rt-thread/tree/master/bsp/raspberry-pi/raspi3-32
